@@ -40,6 +40,7 @@ Item {
     property bool circleModeFill: Plasmoid.configuration.circleModeFill
     property bool pinnedDownSides: Plasmoid.configuration.pinnedDownSides
     property bool waveform: Plasmoid.configuration.waveform
+    property bool useGpuRenderer: Plasmoid.configuration.useGpuRenderer
     clip: !Plasmoid.configuration.debugMode
 
     property var logger: Logger.create(Plasmoid.configuration.debugMode ? LoggingCategory.Debug : LoggingCategory.Info)
@@ -104,6 +105,7 @@ Item {
         spacing: 0
         Visualizer {
             id: visualizer
+            useGpu: root.useGpuRenderer
             visualizerStyle: root.visualizerStyle
             circleMode: root.circleMode
             circleModeSize: root.circleModeSize

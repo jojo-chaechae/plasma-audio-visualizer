@@ -31,6 +31,55 @@ Item {
     required property bool waveform
     property list<int> values
     property bool debugMode: false
+    property bool useGpu: false
+    property bool gpuAvailable: true
+    readonly property bool gpuActive: useGpu && gpuAvailable && !circleMode && !debugMode
+        && (visualizerStyle !== Enum.VisualizerStyles.Wave || values.length >= 2)
+
+    onGpuActiveChanged: {
+        if (!gpuActive && canvas.available) {
+            canvas.requestPaint();
+        }
+    }
+
+    QtObject {
+        id: gpuState
+        property int visualizerStyle: root.visualizerStyle
+        property bool circleMode: root.circleMode
+        property real circleModeSize: root.circleModeSize
+        property int barWidth: root.barWidth
+        property int blockHeight: root.blockHeight
+        property int blockSpacing: root.blockSpacing
+        property int barGap: root.barGap
+        property bool centeredBars: root.centeredBars
+        property int waveMode: root.waveMode
+        property bool roundedBars: root.roundedBars
+        property bool fillWave: root.fillWave
+        property var barColorsCfg: root.barColorsCfg
+        property var waveFillColorsCfg: root.waveFillColorsCfg
+        property var inactiveBlockColorsCfg: root.inactiveBlockColorsCfg
+        property bool drawInactiveBlocks: root.drawInactiveBlocks
+        property bool waveSimulateWaveform: root.waveSimulateWaveform
+        property bool circleModeFill: root.circleModeFill
+        property bool waveform: root.waveform
+        property var values: root.values
+    }
+
+    Loader {
+        id: gpuLoader
+        anchors.fill: parent
+        active: root.gpuActive
+        source: "GpuVisualizer.qml"
+
+        onLoaded: item.visualizerState = gpuState
+
+        onStatusChanged: {
+            if (status === Loader.Error) {
+                root.gpuAvailable = false;
+                console.warn("GPU visualizer unavailable, using Canvas");
+            }
+        }
+    }
 
     Rectangle {
         id: kirigamiColorItem
@@ -58,6 +107,7 @@ Item {
     Canvas {
         id: canvas
         anchors.centerIn: parent
+        visible: !root.gpuActive
         // renderStrategy: Canvas.Threaded
         property int visualizerStyle: root.visualizerStyle
         property bool circleMode: root.circleMode
@@ -93,7 +143,7 @@ Item {
         property int gradientWidth: canvas.width
 
         function updateGradients() {
-            if (!canvas.available) {
+            if (!canvas.available || root.gpuActive) {
                 return;
             }
             canvas.requestPaint();
@@ -140,7 +190,11 @@ Item {
         height: parent.height
         property bool fixAlign: barWidth % 2 === 0 && centeredBars && visualizerStyle === Enum.VisualizerStyles.Wave && !root.fixVertical
 
-        onValuesChanged: canvas.requestPaint()
+        onValuesChanged: {
+            if (!root.gpuActive) {
+                canvas.requestPaint();
+            }
+        }
 
         onPaint: {
             const ctx = getContext("2d");

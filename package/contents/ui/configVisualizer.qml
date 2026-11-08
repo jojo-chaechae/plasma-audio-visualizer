@@ -31,6 +31,7 @@ KCM.SimpleKCM {
     property string cfg_inactiveBlockColors
     property alias cfg_drawInactiveBlocks: drawInactiveBlocks.checked
     property alias cfg_fillWave: fillWaveCheckbox.checked
+    property alias cfg_useGpuRenderer: useGpuRenderer.checked
     // take all the available space in the panel
     property alias cfg_expanding: expandingCheckbox.checked
     property alias cfg_length: lengthSpinbox.value
@@ -110,6 +111,21 @@ KCM.SimpleKCM {
                 id: fillWaveCheckbox
                 text: i18n("Fill wave")
                 enabled: root.cfg_visualizerStyle === Enum.VisualizerStyles.Wave
+            }
+
+            CheckBox {
+                id: useGpuRenderer
+                Kirigami.FormData.label: i18n("Rendering:")
+                text: i18n("Use GPU shader renderer (experimental)")
+            }
+
+            Label {
+                text: i18n("Requires the C++ plugin; falls back to Canvas if it is unavailable. Circle mode currently uses Canvas.")
+                visible: useGpuRenderer.checked
+                font: Kirigami.Theme.smallFont
+                opacity: 0.7
+                wrapMode: Text.Wrap
+                Layout.fillWidth: true
             }
 
             CheckBox {

@@ -98,6 +98,9 @@
     <entry name="visualizerStyle" type="Int">
       <default>1</default>
     </entry>
+    <entry name="useGpuRenderer" type="Bool">
+      <default>true</default>
+    </entry>
     <entry name="circleMode" type="Bool">
       <default>false</default>
     </entry>
